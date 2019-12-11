@@ -1,0 +1,35 @@
+1.sh ------/
+2.conda create env /https://blog.csdn.net/dongwanli666/article/details/78920059
+3.对应的版本：https://blog.csdn.net/omodao1/article/details/83241074
+4.gpu 环境配置：　https://blog.csdn.net/qq_40958331/article/details/82845759#tensorflowgpu_55
+5.2080ti 配置：https://blog.csdn.net/silver1225/article/details/100393719
+6.环境配置：https://blog.csdn.net/tianyangqiao/article/details/88284025
+7.cuda/cudnn:  https://blog.csdn.net/weixin_41010198/article/details/84566800
+8.禁用ubuntu Nouveau;
+9.install nvidia-driver;４４０
+10.cuda10.0
+结果：
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 440.36       Driver Version: 440.36       CUDA Version: 10.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce RTX 208...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 34%   33C    P5    31W / 257W |    372MiB / 11019MiB |     37%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|    0      1139      G   /usr/lib/xorg/Xorg                            28MiB |
+|    0      1222      G   /usr/bin/gnome-shell                          57MiB |
+|    0      1475      G   /usr/lib/xorg/Xorg                           134MiB |
+|    0      1681      G   /usr/bin/gnome-shell                          82MiB |
+|    0      2098      G   ...quest-channel-token=3919999841726857635    64MiB |
++-----------------------------------------------------------------------------+
+
+11.cudnn  https://blog.csdn.net/sun___shy/article/details/87614110
+
+12.tf 版本对应https://www.jianshu.com/p/464fefb5c5d8
