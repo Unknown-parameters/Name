@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<c>*region</c>
+<l>read_image (Image20141101043018T2yegJpeg, 'D:/image/20141101043018_t2YeG.jpeg.jpg')</l>
+<l>threshold(Image20141101043018T2yegJpeg, Region, 128, 255)</l>
+<c>*利用区域生长法</c>
+<l>regiongrowing(Image20141101043018T2yegJpeg, Regions, 3, 3, 6, 100)</l>
+<c></c>
+<c></c>
+<c></c>
+<c>*亚像素数据的处理XLD</c>
+<l>threshold_sub_pix(Image20141101043018T2yegJpeg, Border, 128)</l>
+<l>read_image (Image20191218114251, 'C:/Users/wangz/Desktop/tu/微信图片_20191218114251.jpg')</l>
+<c>*阈值分割</c>
+<l>threshold(Image20191218114251, Region1, 128, 255)</l>
+<c>*计算区域联通部分</c>
+<l>connection(Region1, ConnectedRegions)</l>
+<c>*按特征选取区域</c>
+<l>select_shape(ConnectedRegions, SelectedRegions, 'area', 'and', 150, 99999)</l>
+<c>*联合有连通性质的区域</c>
+<l>union1(SelectedRegions, RegionUnion)</l>
+<c>*合并两个区域</c>
+<l>union2(RegionUnion, Region1, RegionUnion1)</l>
+<c>*计算两个区域的差</c>
+<l>difference(Region1, RegionUnion1, RegionDifference)</l>
+<c>*计算区域的补集</c>
+<l>complement(RegionDifference, RegionComplement)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

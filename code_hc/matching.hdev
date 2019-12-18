@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image20191218114251, 'C:/Users/wangz/Desktop/tu/微信图片_20191218114251.jpg')</l>
+<c>*获得一个矩形</c>
+<l>gen_rectangle2 (ROI_0, 3186.94, 813.567, rad(1.51016), 144.43, 20.7132)</l>
+<c>*缩小图像的域</c>
+<l>reduce_domain(Image20191218114251, ROI_0, ImageReduced)</l>
+<c>*创建形状模板</c>
+<l>create_shape_model(ImageReduced, 'auto', -0.39, 0.79, 'auto', 'auto', 'use_polarity', 'auto', 'auto', ModelID)</l>
+<c>*得到形状模板的轮廓</c>
+<l>get_shape_model_contours(ModelContours, ModelID, 1)</l>
+<c>*在目标图像中寻找模板</c>
+<l>find_shape_model(Image20191218114251,ModelID, -0.39, 0.79, 0.5, 1, 0.5, 'least_squares', 0, 0.9, Row, Column, Angle, Score)</l>
+<c>*显示形状匹配的结果</c>
+<l>dev_display_shape_matching_results(ModelID, 'red', Row, Column, Angle, 1, 1, 0)</l>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

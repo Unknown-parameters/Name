@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image20191218114251, 'C:/Users/wangz/Desktop/tu/微信图片_20191218114251.jpg')</l>
+<l>roberts(Image20191218114251, ImageRoberts, 'gradient_sum')</l>
+<l>threshold(ImageRoberts, Region1, 128, 255)</l>
+<c>*sobel检测边缘</c>
+<l>sobel_amp(ImageRoberts, EdgeAmplitude, 'sum_abs', 3)</l>
+<c>*阈值分割得到边缘</c>
+<l>threshold(EdgeAmplitude, Region, 128, 255)</l>
+<c>*prewitt</c>
+<l>prewitt_amp(Image20191218114251, ImageEdgeAmp)</l>
+<c></c>
+<c>*canny</c>
+<l>edges_image(Image20191218114251,ImaAmp, ImaDir, 'canny', 1, 'nms', 20, 40)</l>
+<c>*亚像素级别边缘提取</c>
+<l>edges_sub_pix(Image20191218114251,Edges, 'canny', 1, 20, 40)</l>
+<c></c>
+<c>*区域生长</c>
+<l>regiongrowing(Image20191218114251,Regions, 3, 3, 6, 100)</l>
+<c>*创建一个空区域</c>
+<l>gen_empty_region(EmptyRegion)</l>
+<c></c>
+<c>*依据灰度值或颜色填充两个区域的间隙或分割重叠区域</c>
+<l>expand_gray(Regions, Image20191218114251, EmptyRegion, RegionExpand, 'maximal', 'image', 32)</l>
+<c></c>
+<l>gen_rectangle2 (ROI_0, 3093.45, 1463.34, rad(1.66155), 787.365, 34.0727)</l>
+<c>*HHOUGH</c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
