@@ -1,5 +1,5 @@
 import cv2
-path = "C:/Users/W/Desktop/caiyang2/"
+path = "/caiyang2/"
 for i in range(1, 81):
     print(path+str(i)+'.jpg')
     img = cv2.imread(path+str(i)+'.png', cv2.IMREAD_GRAYSCALE)

@@ -9,7 +9,7 @@ def detect_face(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     #加载OpenCV人脸检测分类器Haar
-    face_cascade = cv2.CascadeClassifier('C:/Users/W/.conda/envs/opencv/Library/etc/haarcascades/haarcascade_frontalface_alt.xml')
+    face_cascade = cv2.CascadeClassifier('/envs/opencv/Library/etc/haarcascades/haarcascade_frontalface_alt.xml')
 
     #检测多尺度图像，返回值是一张脸部区域信息的列表（x,y,宽,高）
     faceRects = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
@@ -117,8 +117,8 @@ def predict(test_img):
     return img
 
 #加载测试图像
-test_img1 = cv2.imread("C:/Users/W/Desktop/yuce_data/7.jpg")
-test_img2 = cv2.imread("C:/Users/W/Desktop/yuce_data/12.jpg")
+test_img1 = cv2.imread("/yuce_data/7.jpg")
+test_img2 = cv2.imread("/yuce_data/12.jpg")
 
 #执行预测
 predicted_img1 = predict(test_img1)

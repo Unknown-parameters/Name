@@ -4,8 +4,8 @@
 import cv2
 
 # 待检测的图片路径
-path="C:/Users/W/Desktop/train1/data/cascade.xml"
-path1="D:/image/1.jpg"
+path="/cascade.xml"
+path1="/image/1.jpg"
 
 
 # 加载面部特征库
