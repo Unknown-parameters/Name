@@ -4,10 +4,78 @@
 <interface/>
 <body>
 <l>read_image (Image4, 'C:/Users/wangz/Desktop/tu/4.jpg')</l>
-<l>gen_rectangle1 (ROI_0, 3081.95, 657.654, 3151.83, 960.975)</l>
+<l>gen_rectangle1 (ROI_0, 3081, 657, 3081+62, 657+310)</l>
 <l>num:=180</l>
+<c>*剪切图像</c>
+<l>reduce_domain(Image4, ROI_0, ImageReduced)</l>
+<l>edges_sub_pix(ImageReduced,Edges, 'canny', 1, 20, 40)</l>
+<l>length_xld(Edges, Length)</l>
+<l>tuple_sum(Length,Sum)</l>
+<l>*  tuple_length( Length, Length2)</l>
+<l> *tuple_max(Length, Max)</l>
+<l>*close_contours_xld(Edges, ClosedContours)</l>
+<l>*area_center_points_xld(Edges, Area, Row, Column)</l>
+<l>*get_regress_params_xld(Edges, Length, Nx, Ny, Dist, Fpx, Fpy, Lpx, Lpy, Mean1, Deviation1)</l>
+<l>*contlength(Edges, ContLength)</l>
+<l> *gen_contour_region_xld(ROI_0, Contours, 'border')</l>
+<l>stop()</l>
+<c>*封装区</c>
+<c>*提取区域的位置坐标/选择第四个</c>
+<l>rgb1_to_gray (Image4, GrayImage)</l>
+<l>get_region_convex(ROI_0, Rows, Columns)</l>
 <c></c>
-<l>image_sign1 (Image4, ROI_0, NAME, 190, cont)</l>
+<l>gen_empty_obj(NAME)</l>
+<c>*添加位移参数和判断参数</c>
+<l>short_row:=62</l>
+<l>short_col:=310</l>
+<l>long_col:=440</l>
+<l>GN:=num</l>
+<c>*添加待检测的区域</c>
+<l>xpiont:=[]</l>
+<l>ypiont:=[]</l>
+<l>cont:=[]</l>
+<l>xpiont[0]:=Rows[3]+short_row</l>
+<l>xpiont[1]:=xpiont[0]</l>
+<l>xpiont[2]:=xpiont[0]+2*short_row</l>
+<l>xpiont[3]:=xpiont[2]</l>
+<l>ypiont[0]:=Columns[3]+short_col</l>
+<l>ypiont[1]:=ypiont[0]+2*long_col</l>
+<l>ypiont[2]:=ypiont[0]</l>
+<l>ypiont[3]:=ypiont[1]</l>
+<l>longnum:=0</l>
+<c>*位置</c>
+<l>for I:=0 to 3 by 1</l>
+<c>             *</c>
+<l>     gen_rectangle1(name,xpiont[I],ypiont[I],xpiont[I]+short_row,ypiont[I]+short_col)</l>
+<l>     reduce_domain(Image4,name, ImageReduced)</l>
+<l>     edges_sub_pix(ImageReduced,Edges, 'canny', 1, 20, 40)</l>
+<l>     *area_center_points_xld(Edges1, Area1, Row1, Column1)</l>
+<l>*      length_xld(Edges, Length)</l>
+<l>*      tuple_sum(Length,Sum)</l>
+<c>     </c>
+<l>*      tuple_length( Length, Length1)</l>
+<c>     </c>
+<l>*      for I:=0 to Length1 by 1</l>
+<l>*                   longnum:=Length[I]+longnum</l>
+<l>*      endfor</l>
+<c>     </c>
+<l>     *tuple_max(Length1, Max1)</l>
+<c>     *获取灰度均值</c>
+<l>*      intensity (name, GrayImage, Mean, Deviation)</l>
+<l>     *contlength(name, ContLength)</l>
+<l>      *edges_sub_pix(name,Edges, 'canny', 1, 20, 40)</l>
+<l>      *gen_contour_region_xld(name, Contours, 'border')</l>
+<c></c>
+<c>     *合并多个ROI</c>
+<l>*      concat_obj (name,NAME,NAME)</l>
+<c>     * 1为由签名；0为没有签</c>
+<l>*      if (Mean&lt;GN)</l>
+<l>*                   cont[I]:=1</l>
+<l>*      else</l>
+<l>*                   cont[I]:=0</l>
+<l>*      endif   </l>
+<l>     stop()</l>
+<l>endfor</l>
 <c></c>
 <c></c>
 </body>

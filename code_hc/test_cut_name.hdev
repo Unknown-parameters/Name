@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image4, 'C:/Users/wangz/Desktop/tu/4.jpg')</l>
+<l>gen_rectangle1 (ROI_0, 3081, 657, 3081+62, 657+310)</l>
+<l>num:=1000</l>
+<c></c>
+<l>image_sign2 (Image4, ROI_0, NAME, num, cont)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
