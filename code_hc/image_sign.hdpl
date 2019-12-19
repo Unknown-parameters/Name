@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<library/>
+<procedure name="apply_brightness_variation_spot" access="local">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ImageSpot" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="SpotSize" base_type="ctrl" dimension="0"/>
+<par name="SpotRow" base_type="ctrl" dimension="0"/>
+<par name="SpotColumn" base_type="ctrl" dimension="0"/>
+<par name="BrightnessVariation" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>* This procedure applies a brightness spot</c>
+<c>* of a given intensity and size at a given location</c>
+<c>* to the input image.</c>
+<c>* The modified image is returned in ImageSpot.</c>
+<c>* </c>
+<l>if (BrightnessVariation &lt; 0)</l>
+<l>    Direction := 0</l>
+<l>    BrightnessVariation := -BrightnessVariation</l>
+<l>else</l>
+<l>    Direction := 1</l>
+<l>endif</l>
+<l>get_image_size (Image, Width, Height)</l>
+<c>* Generate Gauss filter that simulates an illumination spot of size 'SpotSize'.</c>
+<l>gen_gauss_filter (Filter, 1, 1, 0, 'none', 'dc_center', SpotSize, SpotSize)</l>
+<c>* Shift the filter image to the given position.</c>
+<l>ShiftRow := -(SpotSize / 2 - SpotRow)</l>
+<l>ShiftCol := -(SpotSize / 2 - SpotColumn)</l>
+<l>tile_images_offset (Filter, GaussImage, ShiftRow, ShiftCol, -1, -1, -1, -1, Width, Height)</l>
+<l>full_domain (GaussImage, GaussFilter)</l>
+<c>* Convert Gauss filter to target image type and apply brightness variation.</c>
+<l>get_image_type (Image, Type)</l>
+<l>scale_image (GaussFilter, Gauss, BrightnessVariation, 0)</l>
+<l>convert_image_type (Gauss, GaussTargetType, Type)</l>
+<c>* Add channels to fit input image.</c>
+<l>count_channels (Image, NChannels)</l>
+<l>copy_obj (GaussTargetType, AddImage, 1, 1)</l>
+<l>for Index1 := 1 to NChannels - 1 by 1</l>
+<l>    append_channel (AddImage, GaussTargetType, AddImage)</l>
+<l>endfor</l>
+<c>* Apply on image.</c>
+<l>if (Direction)</l>
+<l>    add_image (Image, AddImage, ImageSpot, 1, 0)</l>
+<l>else</l>
+<l>    sub_image (Image, AddImage, ImageSpot, 1, 0)</l>
+<l>endif</l>
+<l>return ()</l>
+</body>
+<docu id="apply_brightness_variation_spot">
+<chapters lang="de_DE">
+<item>Bild</item>
+</chapters>
+<chapters lang="en_US">
+<item>Image</item>
+<item>Manipulation</item>
+</chapters>
+<library lang="en_US">MVTec Standard Procedures</library>
+<parameters>
+<parameter id="BrightnessVariation"/>
+<parameter id="Image"/>
+<parameter id="ImageSpot"/>
+<parameter id="SpotColumn"/>
+<parameter id="SpotRow"/>
+<parameter id="SpotSize"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="augment_images">
+<interface>
+<io>
+<par name="Images" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ImagesAugmented" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="GenParamName" base_type="ctrl" dimension="0"/>
+<par name="GenParamValue" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>* This procedure can be used to augment given input Images</c>
+<c>* using different methods, which can be specified using</c>
+<c>* GenParamName and GenParamValue. The augmented images are returned</c>
+<c>* in ImagesAugmented.</c>
+<c>* </c>
+<c>* Set default parameters.</c>
+<c>* </c>
+<c>* The percentages of the images that are to be augmented.</c>
+<l>AugmentationPercentage := ['augmentation_percentage',50]</l>
+<c>* Fraction of image length and width that remains after cropping (in %).</c>
+<l>CropPercentage := ['crop_percentage','off']</l>
+<c>* Image length and width that remains after cropping (in pixel).</c>
+<l>CropPixel := ['crop_pixel','off']</l>
+<c>* Step size for possible rotations.</c>
+<l>Rotation := ['rotate',0]</l>
+<c>* Step range for rotations with step size 1.</c>
+<l>RotationRange := ['rotate_range',0]</l>
+<c>* Allowed mirroring methods coded by 'r' (row), 'c' (column).</c>
+<l>Mirror := ['mirror','off']</l>
+<c>* The absolute brightness change can vary in the range[-value, +value].</c>
+<l>BrightnessVariation := ['brightness_variation',0]</l>
+<c>* The absolute brightness peak of a randomly positioned spot can vary in the range[-value, +value].</c>
+<l>BrightnessVariationSpot := ['brightness_variation_spot',0]</l>
+<c>* </c>
+<c>* Parse the generic parameters.</c>
+<c>* </c>
+<c>* Check if GenParamName matches GenParamValue.</c>
+<l>if (|GenParamName| != |GenParamValue|)</l>
+<l>    throw ('Number of generic parameters does not match number of generic parameter values')</l>
+<l>endif</l>
+<c>* Check for generic parameter names and overwrite defaults.</c>
+<l>for GenParamIndex := 0 to |GenParamName| - 1 by 1</l>
+<l>    CurrentParamName := GenParamName[GenParamIndex]</l>
+<l>    CurrentParamValue := GenParamValue[GenParamIndex]</l>
+<c>    * </c>
+<l>    if (CurrentParamName == AugmentationPercentage[0])</l>
+<c>        * Set augmentation percentage.</c>
+<l>        AugmentationPercentage[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 1-100 %.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 1 or CurrentParamValue &gt; 100)</l>
+<l>                throw ('The given value for augmentation_percentage has to be in the range 1-100.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for augmentation_percentage has to be in the range 1-100.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == Rotation[0])</l>
+<c>        * Set rotation.</c>
+<l>        Rotation[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 0-180 deg.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 0 or CurrentParamValue &gt; 180)</l>
+<l>                throw ('The given value for rotate has to be in the range 0-180.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for rotate has to be in the range 0-180.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == RotationRange[0])</l>
+<c>        * Set rotation.</c>
+<l>        RotationRange[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 0-180 deg.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 0 or CurrentParamValue &gt; 180)</l>
+<l>                throw ('The given value for rotate_range has to be in the range 0-180."')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for rotate_range has to be in the range 0-180.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == Mirror[0])</l>
+<c>        * Set mirroring.</c>
+<l>        Mirror[1] := CurrentParamValue</l>
+<c>        * Check if input is string and is 'off' or contains the wanted strings.</c>
+<l>        if (is_number(CurrentParamValue) or not (CurrentParamValue == 'off' or CurrentParamValue == 'c' or CurrentParamValue == 'r' or CurrentParamValue == 'cr' or CurrentParamValue == 'rc'))</l>
+<l>            throw ('Unknown mirror method.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == CropPercentage[0])</l>
+<c>        * Set cropping with percentage.</c>
+<l>        CropPercentage[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 1-100 %.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 1 or CurrentParamValue &gt; 100)</l>
+<l>                throw ('The given value for crop_percentage has to be in the range 1-100.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for crop_percentage has to be in the range 1-100.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == CropPixel[0])</l>
+<c>        * Set cropping with pixels.</c>
+<l>        CropPixel[1] := CurrentParamValue</l>
+<c>        * Check if input value is greater 0.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 1)</l>
+<l>                throw ('The given value for crop_pixel has to be greater then or equal to 1.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for crop_pixel has to be a string.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == BrightnessVariation[0])</l>
+<c>        * Set brightness variation.</c>
+<l>        BrightnessVariation[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 0-255.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 0 or CurrentParamValue &gt; 255)</l>
+<l>                throw ('The given value for brightness_variation has to be in the range 0-255.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for brightness_variation has to be in the range 0-255.')</l>
+<l>        endif</l>
+<l>    elseif (CurrentParamName == BrightnessVariationSpot[0])</l>
+<c>        * Set brightness variation of spot.</c>
+<l>        BrightnessVariationSpot[1] := CurrentParamValue</l>
+<c>        * Check if input value is in range of 0-255.</c>
+<l>        if (is_number(CurrentParamValue))</l>
+<l>            if (CurrentParamValue &lt; 0 or CurrentParamValue &gt; 255)</l>
+<l>                throw ('The given value for brightness_variation_spot has to be in the range 0-255.')</l>
+<l>            endif</l>
+<l>        else</l>
+<l>            throw ('The given value for brightness_variation_spot has to be in the range 0-255.')</l>
+<l>        endif</l>
+<l>    else</l>
+<l>        throw ('Unknown generic parameter: \'' + GenParamName[GenParamIndex] + '\'')</l>
+<l>    endif</l>
+<l>endfor</l>
+<c>* </c>
+<c>* Aggregate all possible distortions and parameter values into a vector.</c>
+<c>* </c>
+<l>AvailableDistortions := {}</l>
+<c>* Cropping percentage.</c>
+<l>if (is_number(CropPercentage[1]))</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := CropPercentage</l>
+<l>endif</l>
+<c>* Cropping pixel.</c>
+<l>if (is_number(CropPixel[1]))</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := CropPixel</l>
+<l>endif</l>
+<c>* Rotation with a given angular step size.</c>
+<l>if (Rotation[1] &gt; 0)</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := Rotation</l>
+<l>endif</l>
+<c>* Rotation within a given range (step size 1).</c>
+<l>if (RotationRange[1] &gt; 0)</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := RotationRange</l>
+<l>endif</l>
+<c>* Mirroring: in row and column direction are allowed.</c>
+<l>if (Mirror[1] =~ 'r' or Mirror[1] =~ 'c')</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := Mirror</l>
+<l>endif</l>
+<c>* Brightness variation.</c>
+<l>if (BrightnessVariation[1] &gt; 0)</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := BrightnessVariation</l>
+<l>endif</l>
+<c>* Brightness variation spot.</c>
+<l>if (BrightnessVariationSpot[1] &gt; 0)</l>
+<l>    AvailableDistortions.at(AvailableDistortions.length()) := BrightnessVariationSpot</l>
+<l>endif</l>
+<c>* Check number of available distortions</c>
+<l>NumAvailableDistortions := AvailableDistortions.length()</l>
+<l>if (NumAvailableDistortions == 0)</l>
+<l>    ImagesAugmented := Images</l>
+<l>    return ()</l>
+<l>endif</l>
+<c>* </c>
+<c>* Randomly choose images and augmentation methods.</c>
+<c>* </c>
+<c>* Number of images to be augmented.</c>
+<l>count_obj (Images, NumImages)</l>
+<l>if (NumImages == 0)</l>
+<l>    throw ('There are no images to be processed.')</l>
+<l>endif</l>
+<c>* Calculate how many images are to be augmented.</c>
+<l>AugmentationRate := AugmentationPercentage[1] * 0.01</l>
+<l>NumAugmentations := int(ceil(AugmentationRate * NumImages))</l>
+<c>* Select a random subset of images</c>
+<c>* that are to be augmented.</c>
+<l>tuple_shuffle ([0:NumImages - 1], ImageIndices)</l>
+<l>SelectedImages := ImageIndices[0:NumAugmentations - 1]</l>
+<c>* Select a random distortion method for each image.</c>
+<l>SelectedDistortions := int(floor(rand(NumAugmentations) * NumAvailableDistortions))</l>
+<c>* Fill up vector of distortions for all input images.</c>
+<l>Distortions := {}</l>
+<l>IndexDistortion := 0</l>
+<l>for Index := 0 to NumImages - 1 by 1</l>
+<c>    * Check if Index corresponds to a selected image.</c>
+<l>    if (sum(SelectedImages [==] Index) &gt; 0)</l>
+<c>        * Add a distortion method.</c>
+<l>        Distortions.at(Index) := AvailableDistortions.at(SelectedDistortions[IndexDistortion])</l>
+<l>        IndexDistortion := IndexDistortion + 1</l>
+<l>    else</l>
+<c>        * Image will not be distorted.</c>
+<l>        Distortions.at(Index) := ['none',0]</l>
+<l>    endif</l>
+<l>endfor</l>
+<c>* </c>
+<c>* Augment (distort) the images.</c>
+<c>* </c>
+<c>* Generate output image array.</c>
+<l>gen_empty_obj (ImagesAugmented)</l>
+<c>* Loop over all images and apply distortions.</c>
+<l>for ImageIndex := 0 to NumImages - 1 by 1</l>
+<c>    * Get distortion method.</c>
+<l>    CurrentDistortion := Distortions.at(ImageIndex)</l>
+<c>    * Get image to be processed.</c>
+<l>    select_obj (Images, ImageSelected, ImageIndex + 1)</l>
+<l>    get_image_size (ImageSelected, Width, Height)</l>
+<l>    if (CurrentDistortion[0] == CropPercentage[0])</l>
+<c>        * Cropping:</c>
+<c>        * Define cropping rectangle.</c>
+<l>        CropRate := CurrentDistortion[1] * 0.01</l>
+<l>        Row1 := floor((1 - CropRate) * Height * rand(1))</l>
+<l>        Row2 := Row1 + CropRate * Height</l>
+<l>        Column1 := floor((1 - CropRate) * Width * rand(1))</l>
+<l>        Column2 := Column1 + CropRate * Width</l>
+<c>        * Crop the image and add to output.</c>
+<l>        crop_rectangle1 (ImageSelected, ImagePart, Row1, Column1, Row2, Column2)</l>
+<l>        concat_obj (ImagesAugmented, ImagePart, ImagesAugmented)</l>
+<l>    elseif (CurrentDistortion[0] == CropPixel[0])</l>
+<c>        * Cropping:</c>
+<c>        * Define cropping rectangle.</c>
+<l>        Length := CurrentDistortion[1]</l>
+<l>        Row1 := rand(1) * (Height - Length)</l>
+<l>        Row2 := Row1 + Length - 1</l>
+<l>        Column1 := rand(1) * (Width - Length)</l>
+<l>        Column2 := Column1 + Length - 1</l>
+<c>        * Crop the image and add to output.</c>
+<l>        crop_rectangle1 (ImageSelected, ImagePart, Row1, Column1, Row2, Column2)</l>
+<l>        concat_obj (ImagesAugmented, ImagePart, ImagesAugmented)</l>
+<l>    elseif (CurrentDistortion[0] == Rotation[0] or CurrentDistortion[0] == RotationRange[0])</l>
+<c>        * Rotation:</c>
+<l>        if (CurrentDistortion[0] == Rotation[0])</l>
+<c>            * Determine rotation angle for method 'rotate' (angle in range [0:CurrentDistortion[1]:360)).</c>
+<l>            RotationStep := CurrentDistortion[1]</l>
+<l>            NumPossibleRotations := 360.0 / RotationStep</l>
+<l>            CurrentRotation := RotationStep * (int(NumPossibleRotations * rand(1)) + 1)</l>
+<l>        else</l>
+<c>            * Determine rotation angle for method 'rotate_range' (angle in range [0:1:CurrentDistortion[1])).</c>
+<l>            RotationStep := 1</l>
+<l>            NumPossibleRotations := CurrentDistortion[1]</l>
+<l>            CurrentRotation := RotationStep * (int(NumPossibleRotations * rand(1)) + 1)</l>
+<c>            * Select direction of rotation randomly.</c>
+<l>            if (round(rand(1)) &gt; 0.5)</l>
+<l>                CurrentRotation := 360.0 - CurrentRotation</l>
+<l>            endif</l>
+<l>        endif</l>
+<l>        if (int(CurrentRotation) == CurrentRotation and int(CurrentRotation) % 90 == 0)</l>
+<c>            * Rotations around 90 degrees are faster with rotate_image</c>
+<l>            rotate_image (ImageSelected, ImagePart, int(CurrentRotation), 'constant')</l>
+<l>        else</l>
+<c>            * Create rotation matrix.</c>
+<l>            hom_mat2d_identity (HomMat2DIdentity)</l>
+<l>            hom_mat2d_rotate (HomMat2DIdentity, rad(CurrentRotation), Height / 2.0, Width / 2.0, HomMat2DRotate)</l>
+<c>            * Apply rotation.</c>
+<l>            affine_trans_image (ImageSelected, ImageRotated, HomMat2DRotate, 'constant', 'false')</l>
+<c>            * Remove potential undefined domain.</c>
+<l>            get_domain (ImageRotated, DomainRotated)</l>
+<l>            inner_rectangle1 (DomainRotated, Row1, Column1, Row2, Column2)</l>
+<l>            crop_rectangle1 (ImageRotated, ImagePart, Row1, Column1, Row2, Column2)</l>
+<l>        endif</l>
+<c>        * Add the image to the output.</c>
+<l>        concat_obj (ImagesAugmented, ImagePart, ImagesAugmented)</l>
+<l>    elseif (CurrentDistortion[0] == Mirror[0])</l>
+<c>        * Mirroring:</c>
+<c>        * If more than one method is allowed, chose mirroring method(s) to be applied.</c>
+<l>        NumMirrorMethods := strlen(CurrentDistortion[1])</l>
+<l>        PropabilityMethods := 1.0 / NumMirrorMethods</l>
+<l>        StrMirror := ''</l>
+<l>        while (StrMirror == '')</l>
+<l>            for StrIdx := 0 to NumMirrorMethods - 1 by 1</l>
+<l>                SelectedChar := CurrentDistortion[1]{StrIdx}</l>
+<l>                if (rand(1) &lt; PropabilityMethods)</l>
+<l>                    StrMirror := StrMirror + SelectedChar</l>
+<l>                endif</l>
+<l>            endfor</l>
+<l>        endwhile</l>
+<c>        * Apply the chosen mirroring method(s).</c>
+<l>        if (StrMirror =~ 'c')</l>
+<l>            mirror_image (ImageSelected, ImageSelected, 'column')</l>
+<l>        endif</l>
+<l>        if (StrMirror =~ 'r')</l>
+<l>            mirror_image (ImageSelected, ImageSelected, 'row')</l>
+<l>        endif</l>
+<c>        * Add the image to the output.</c>
+<l>        concat_obj (ImagesAugmented, ImageSelected, ImagesAugmented)</l>
+<l>    elseif (CurrentDistortion[0] == BrightnessVariation[0])</l>
+<c>        * Brightness variation:</c>
+<c>        * Add random brightness variation.</c>
+<l>        BrightnessVariationValue := (rand(1) * 2 - 1) * CurrentDistortion[1]</l>
+<l>        scale_image (ImageSelected, ImageScaled, 1.0, BrightnessVariationValue)</l>
+<c>        * Add the image to the output.</c>
+<l>        concat_obj (ImagesAugmented, ImageScaled, ImagesAugmented)</l>
+<l>    elseif (CurrentDistortion[0] == BrightnessVariationSpot[0])</l>
+<c>        * Determine random brightness variation.</c>
+<l>        BrightnessVariationValue := (rand(1) * 2 - 1) * CurrentDistortion[1]</l>
+<c>        * Determine random spot size between [0.5*Width, Width].</c>
+<l>        SpotSize := Width * (rand(1) / 2 + .5)</l>
+<c>        * Determine random spot position.</c>
+<l>        SpotRow := rand(1) * Height</l>
+<l>        SpotColumn := rand(1) * Width</l>
+<l>        apply_brightness_variation_spot (ImageSelected, ImageSpot, SpotSize, SpotRow, SpotColumn, BrightnessVariationValue)</l>
+<c>        * Add the image to the output.</c>
+<l>        concat_obj (ImagesAugmented, ImageSpot, ImagesAugmented)</l>
+<l>    else</l>
+<c>        * Add unchanged image to the output.</c>
+<l>        concat_obj (ImagesAugmented, ImageSelected, ImagesAugmented)</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="augment_images">
+<abstract lang="de_DE">Diese Prozedur kann benutzt werden, um die Eingabebilder Images mit verschiedenen Methoden zu augmentieren, die mit GenParamName and GenParamValue spezifiziert werden. Die augmentierten Bilder werden in ImagesAugmented zurückgegeben. Es ist stark vom jeweiligen Datensatz abhängig, welche Augmentierungsmethoden zu einer Verbesserung der Performance des trainierten Deep-Learning-basierten Netzwerks führen. 
+
+Die Datenaugmentierung wird durchgeführt, indem ein Teil der Bilder modifiziert wird, d.h. die Anzahl der Bilder in Images und ImagesAugmented ist identisch. Um zu verhindern, dass alle Bilder augmentiert werden, d.h. keine 'Original-'Bilder verbleiben in ImagesAugmented, kann die Prozentsatz der augmentierten Bilder 'augmentation_percentage' mit GenParamName und GenParamValue gesetzt werden. Der Standardwert ist '50', es werden also 50% der Bilder unverändert zurückgegeben.
+
+Für jedes zu augmentierende Bild wird eine der unten aufgeführten Methoden zufällig ausgewählt. Sie können angepasst oder deaktiviert werden, indem der Methodenname in GenParamName und der entsprechende Parameter in GenParamValue übergeben werden:
+
+  * 'rotate': Dieser Wert bestimmt die Schrittweite der erlaubten Rotationen. Die zur Rotation ausgewählten Bilder werden um ein zufällig bestimmtes Vielfaches dieser Schrittweite rotiert. Die daraus resultierenden Rotationswinkel liegen im Bereich [0°:360°]. Falls nach der Rotation undefinierte Pixel entstehen würde, wird das Bild ausgeschnitten. Der Wertebereich ist 0 bis 180, der empfohlene Wert ist '90'. Mit '0' wird diese Methode deaktiviert, was auch der Standardwert ist.
+
+  * 'rotate_range': Diese Rotationsmethode rotiert die ausgewählten Bilder um einen zufälligen Winkel im Bereich [-'rotate_range':1°:'rotate_range']. Falls nach der Rotation undefinierte Pixel entstehen würde, wird das Bild ausgeschnitten. Der Wertebereich ist  0 bis 180, der empfohlene Wert ist '5'. Mit '0' wird diese Methode deaktiviert, was auch der Standardwert ist.
+
+  * 'crop_percentage': Dieser Parameter bestimmt, welcher Prozentsatz der Seitenlänge in Spalten- und Zeilenrichtung von einem Bild übrig bleibt, nachdem es zufällig ausgeschnitten wird. Die Position des ausgeschnitten Bereichs wird zufällig ausgewählt. Der Wertebereich ist von 1 bis 100 [%]. Mit '100' wird diese Methode deaktiviert. Der Standardwert ist '90'.
+
+  * 'crop_pixel': Dieser Parameter bestimmt die Seitenlänge in Spalten- und Zeilenrichtung, welche von einem Bild übrig bleibt, nachdem es zufällig ausgeschnitten wird. Die Position des ausgeschnitten Bereichs wird zufällig ausgewählt. Der Wert muss größer gleich 1 sein. Mit 'off' wird diese Methode deaktiviert, was auch der Standardwert ist.
+
+  * 'mirror': Dieser Parameter codiert die erlaubten Spiegelungsmethoden in der folgenden Art und Weise: 'r' (row/Zeile) und 'c' (column/Spalte). Es ist damit zum Beispiel möglich, beide Methoden zu erlauben, indem 'rc' übergeben wird. Mit 'off' wird keine Spiegelung durchgeführt, was auch der Standardwert ist.
+
+  * 'brightness_variation': Mit dieser Methode wird eine globale Helligkeits-Veränderung durchgeführt, wobei der angegebene Wert die Änderung des Grauwertes zufällig vorgibt [-brightness_variation:brightness_variation]. Der Wertebereich ist von 0 bis 255, vorgeschlagener Wert z.B. '20'. Mit '0' wird diese Methode deaktiviert, was auch der Standardwert ist.
+
+  * 'brightness_variation_spot': Mit dieser Methode wird eine lokaler Helligkeits-Veränderung in einem Lichtfleck durchgeführt, wobei der angegebene Wert die Änderung des Grauwertes zufällig vorgibt [-brightness_variation_spot:brightness_variation_spot]. Die Größe und Position des Lichtflecks wird zufällig ausgewählt. Der Wertebereich ist von 0 bis 255, vorgeschlagener Wert z.B. '20'. Mit '0' wird diese Methode deaktiviert, was auch der Standardwert ist.
+
+ACHTUNG: Die Größe der Ausgabebilder wird durch die Rotationen (außer 180°) und 'crop_rand' verändert. Dadurch muss eventuell die Bild-Vorverarbeitung, die ggf. für Deep Learning Training Inferenz notwendig ist, z.B. mit preprocess_dl_classifier_image wiederholt werden. 
+
+Außerdem ist zu beachten, dass ein Seed mit set_system gesetzt werden muss, wenn die Ergebnisse dieser Prozedur reproduzierbar sein sollen. 
+
+</abstract>
+<abstract lang="en_US">This procedure can be used to augment the given Images using different methods, which can be specified using  GenParamName and GenParamValue. The augmented images are returned in ImagesAugmented. Please note, it is highly data set dependent which methods are suitable to improve the performance of the trained deep learning classifier.
+
+Data augmentation is achieved by modification of some of the images, i.e. the number of images in Images and ImagesAugmented is identical. To prevent augmentation of all input images, i.e. no 'original' images are left in ImagesAugmented, you can set the 'augmentation_percentage' using GenParamName and GenParamValue. The default is '50', meaning 50% of the images  are returned unchanged.
+
+For each image that is augmented one augmentation method is selected randomly from the methods listed below. They can be adjusted or switched off by giving the method name in GenParamName and respective parameters in GenParamValue:
+ 
+  * 'rotate': This value determines the step size of the allowed rotations. The images selected for rotation are rotated by a randomly chosen multiple of the given step size. The resulting rotation angle is in the range of [0°:360°]. Note that the image is cropped if undefined pixels would result from the rotation. The value range is 0 to 180, the suggested value is '90'. Use '0' to switch off rotation. The default is '0'.
+
+  * 'rotate_range': This method rotates the images within a given angular range. The images selected for rotation by this method are rotated by a random angle in the range of [-'rotate_range':1°:'rotate_range']. Note that the image is cropped, if undefined pixels would result from the rotation. The value range is 0 to 180, the suggested value is '5'. Use '0' to switch off rotation. The default is '0'.
+
+ * 'crop_percentage': This parameter determines the remaining percentage of the image side lengths in row and column direction after random cropping. The position of the cropped area is chosen randomly. The value range is 1 to 100 [%]. Set the parameter to 'off' or '100' to switch off random cropping. The default is 'off'.
+
+ * 'crop_pixel': This parameter determines the remaining size of the image side lengths in row and column direction after random cropping. The position of the cropped area is chosen randomly. The value must be greater then or equal to '1'. Set the parameter to 'off' to switch off random cropping. The default is 'off'.
+
+ * 'mirror': This parameter codes the allowed mirroring methods in the following way: 'r' (row) and 'c' (column). Is is possible to allow both methods, e.g. by giving 'rc'. An image augmented by mirroring will be mirrored by a random combination of the allowed methods. Alternatively, you can set it to 'off' to disable the mirroring. The default is 'off'.
+
+ * 'brightness_variation': Apply a global, random brightness variation in the range of plus/minus the given gray value[-brightness_variation:brightness_variation]. The value range is 0-255, suggested value e.g. '20'.  Setting the parameter to '0' will disable this method. The default is '0'.
+
+ * 'brightness_variation_spot': Apply one local brightness spot in the range of plus/minus the given gray value [-brightness_variation_spot:brightness_variation_spot]. The spot size and position in the image are chosen randomly. The value range is 0-255, suggested value e.g. '20'. Alternatively, you can set it to '0'. The default is '0'.
+
+ATTENTION: Please note that the image size will be affected by rotations (other than 180°) and cropping. Therefore, the image preprocessing necessary for deep learning classification training and inference may have to be repeated, for example using preprocess_dl_classifier_image.
+
+Also, please note that for reproducibility of the output images, the random seed has to be set using set_system before calling the procedure.
+
+</abstract>
+<chapters lang="de_DE">
+<item>Bild</item>
+<item>Manipulation</item>
+</chapters>
+<chapters lang="en_US">
+<item>Image</item>
+<item>Manipulation</item>
+</chapters>
+<keywords lang="en_US">
+<item>augmentation</item>
+<item>augment</item>
+</keywords>
+<library lang="en_US">MVTec Standard Procedures</library>
+<short lang="de_DE">Augmentieren / verfälschen der Bilder</short>
+<short lang="en_US">Augment/distort the given images.</short>
+<parameters>
+<parameter id="GenParamName">
+<default_type>string</default_type>
+<default_value>[]</default_value>
+<description lang="de_DE">Name des generischen Parameters.</description>
+<description lang="en_US">Name of the generic parameter.</description>
+<mixed_type>false</mixed_type>
+<multivalue>optional</multivalue>
+<sem_type>attribute.name</sem_type>
+<type_list>
+<item>string</item>
+</type_list>
+<values>
+<item>'augmentation_percentage'</item>
+<item>'rotate'</item>
+<item>'rotate_range'</item>
+<item>'crop_percentage, 'crop_pixel''</item>
+<item>'mirror'</item>
+<item>'brightness_variation'</item>
+<item>'brightness_variation_spot'</item>
+</values>
+</parameter>
+<parameter id="GenParamValue">
+<default_type>integer</default_type>
+<default_value>[]</default_value>
+<description lang="de_DE">Wert des generischen Parameters.</description>
+<description lang="en_US">Value of the generic parameter.</description>
+<mixed_type>optional</mixed_type>
+<multivalue>optional</multivalue>
+<sem_type>attribute.value</sem_type>
+<type_list>
+<item>integer</item>
+<item>real</item>
+<item>string</item>
+</type_list>
+<values>
+<item>0</item>
+<item>5</item>
+<item>10</item>
+<item>25</item>
+<item>50</item>
+<item>70</item>
+<item>90</item>
+<item>180</item>
+<item>255</item>
+<item>'rc'</item>
+<item>'r'</item>
+<item>'c'</item>
+<item>'off'</item>
+</values>
+</parameter>
+<parameter id="Images">
+<description lang="de_DE">Bilder, die augmentiert werden sollen.</description>
+<description lang="en_US">Images that are to be augmented.</description>
+<multichannel>optional</multichannel>
+<multivalue>optional</multivalue>
+<sem_type>image</sem_type>
+<type_list>
+<item>byte</item>
+<item>real</item>
+</type_list>
+</parameter>
+<parameter id="ImagesAugmented">
+<description lang="de_DE">Die augmentierten Bilder.</description>
+<description lang="en_US">The augmented / distorted images.</description>
+<multichannel>optional</multichannel>
+<multivalue>optional</multivalue>
+<sem_type>image</sem_type>
+</parameter>
+</parameters>
+</docu>
+</procedure>
+<procedure name="image_sign">
+<interface>
+<io>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="ROI_0" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="name1" base_type="iconic" dimension="0"/>
+<par name="name2" base_type="iconic" dimension="0"/>
+<par name="name3" base_type="iconic" dimension="0"/>
+<par name="name4" base_type="iconic" dimension="0"/>
+</oo>
+<oc>
+<par name="cont" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>*封装区</c>
+<c>*提取区域的位置坐标/选择第四个</c>
+<l>rgb1_to_gray (Image4, GrayImage)</l>
+<l>get_region_convex(ROI_0, Rows, Columns)</l>
+<c>*添加位移单位</c>
+<l>short_row:=62</l>
+<l>short_col:=310</l>
+<l>long_col:=440</l>
+<c>*添加待检测的区域</c>
+<l>xpiont:=[]</l>
+<l>ypiont:=[]</l>
+<l>cont:=[]</l>
+<l>xpiont[0]:=Rows[3]+short_row</l>
+<l>xpiont[1]:=xpiont[0]+2*short_row</l>
+<l>ypiont[0]:=Columns[3]+short_col</l>
+<l>ypiont[1]:=ypiont[0]+2*long_col</l>
+<c></c>
+<c>*位置一</c>
+<l>gen_rectangle1(name1,xpiont[0],ypiont[0],xpiont[0]+short_row,ypiont[0]+short_col)</l>
+<l>intensity (name1, GrayImage, Mean1, Deviation)</l>
+<c>* 1为由签名；0为没有签</c>
+<l>if (Mean1&lt;170)</l>
+<l>             cont[0]:=1</l>
+<l>else</l>
+<l>             cont[0]:=0</l>
+<l>endif</l>
+<c></c>
+<c>*位置二</c>
+<l>gen_rectangle1(name2,xpiont[0],ypiont[1],xpiont[0]+short_row,ypiont[1]+short_col)</l>
+<l>intensity (name2, GrayImage, Mean2, Deviation)</l>
+<c>* 1为由签名；0为没有签</c>
+<l>if (Mean2&lt;170)</l>
+<l>             cont[1]:=1</l>
+<l>else</l>
+<l>             cont[1]:=0</l>
+<l>endif</l>
+<c></c>
+<c>*位置三</c>
+<l>gen_rectangle1(name3,xpiont[1],ypiont[0],xpiont[1]+short_row,ypiont[0]+short_col)</l>
+<l>intensity (name3, GrayImage, Mean3, Deviation)</l>
+<c>* 1为由签名；0为没有签</c>
+<l>if (Mean3&lt;170)</l>
+<l>             cont[2]:=1</l>
+<l>else</l>
+<l>             cont[2]:=0</l>
+<l>endif</l>
+<c></c>
+<c>*位置四</c>
+<l>gen_rectangle1(name4,xpiont[1],ypiont[1],xpiont[1]+short_row,ypiont[1]+short_col)</l>
+<l>intensity (name4, GrayImage, Mean4, Deviation)</l>
+<c>* 1为由签名；0为没有签</c>
+<l>if (Mean4&lt;170)</l>
+<l>             cont[3]:=1</l>
+<l>else</l>
+<l>             cont[3]:=0</l>
+<l>endif</l>
+<l>return ()</l>
+</body>
+<docu id="image_sign">
+<parameters>
+<parameter id="Image4"/>
+<parameter id="ROI_0"/>
+<parameter id="cont"/>
+<parameter id="name1"/>
+<parameter id="name2"/>
+<parameter id="name3"/>
+<parameter id="name4"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>
