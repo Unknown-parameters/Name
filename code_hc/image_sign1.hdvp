@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="image_sign1">
+<interface>
+<io>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="ROI_0" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="NAME" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="num" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="cont" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>*封装区</c>
+<c>*提取区域的位置坐标/选择第四个</c>
+<l>rgb1_to_gray (Image4, GrayImage)</l>
+<l>get_region_convex(ROI_0, Rows, Columns)</l>
+<l>gen_empty_obj(NAME)</l>
+<c>*添加位移参数和判断参数</c>
+<l>short_row:=62</l>
+<l>short_col:=310</l>
+<l>long_col:=440</l>
+<l>GN:=num</l>
+<c>*添加待检测的区域</c>
+<l>xpiont:=[]</l>
+<l>ypiont:=[]</l>
+<l>cont:=[]</l>
+<l>xpiont[0]:=Rows[3]+short_row</l>
+<l>xpiont[1]:=xpiont[0]</l>
+<l>xpiont[2]:=xpiont[0]+2*short_row</l>
+<l>xpiont[3]:=xpiont[2]</l>
+<l>ypiont[0]:=Columns[3]+short_col</l>
+<l>ypiont[1]:=ypiont[0]+2*long_col</l>
+<l>ypiont[2]:=ypiont[0]</l>
+<l>ypiont[3]:=ypiont[1]</l>
+<c></c>
+<c>*位置</c>
+<l>for I:=0 to 3 by 1</l>
+<l>     gen_rectangle1(name,xpiont[I],ypiont[I],xpiont[I]+short_row,ypiont[I]+short_col)</l>
+<l>     intensity (name, GrayImage, Mean, Deviation)</l>
+<c>     *合并多个ROI</c>
+<l>     concat_obj (name,NAME,NAME)</l>
+<c>     * 1为由签名；0为没有签</c>
+<l>     if (Mean&lt;GN)</l>
+<l>                  cont[I]:=1</l>
+<l>     else</l>
+<l>                  cont[I]:=0</l>
+<l>     endif        </l>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="image_sign1">
+<parameters>
+<parameter id="Image4"/>
+<parameter id="NAME"/>
+<parameter id="ROI_0"/>
+<parameter id="cont"/>
+<parameter id="num"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>
