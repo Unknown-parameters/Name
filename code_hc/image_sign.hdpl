@@ -618,8 +618,7 @@ Also, please note that for reproducibility of the output images, the random seed
 <l>             elseif(method=='gray')</l>
 <l>                          sign[I]:=sign3[I]</l>
 <l>             endif</l>
-<c>             </c>
-<c>                </c>
+<c>   </c>
 <l>endfor</l>
 <l>return ()</l>
 </body>
