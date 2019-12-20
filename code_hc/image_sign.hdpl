@@ -539,13 +539,13 @@ Also, please note that for reproducibility of the output images, the random seed
 <par name="ROI_0" base_type="iconic" dimension="0"/>
 </io>
 <oo>
-<par name="name1" base_type="iconic" dimension="0"/>
-<par name="name2" base_type="iconic" dimension="0"/>
-<par name="name3" base_type="iconic" dimension="0"/>
-<par name="name4" base_type="iconic" dimension="0"/>
+<par name="NAME" base_type="iconic" dimension="0"/>
 </oo>
+<ic>
+<par name="method" base_type="ctrl" dimension="0"/>
+</ic>
 <oc>
-<par name="cont" base_type="ctrl" dimension="0"/>
+<par name="sign" base_type="ctrl" dimension="0"/>
 </oc>
 </interface>
 <body>
@@ -553,69 +553,83 @@ Also, please note that for reproducibility of the output images, the random seed
 <c>*提取区域的位置坐标/选择第四个</c>
 <l>rgb1_to_gray (Image4, GrayImage)</l>
 <l>get_region_convex(ROI_0, Rows, Columns)</l>
-<c>*添加位移单位</c>
+<l>gen_empty_obj(NAME)</l>
+<c>*添加位移参数和判断参数</c>
 <l>short_row:=62</l>
 <l>short_col:=310</l>
 <l>long_col:=440</l>
 <c>*添加待检测的区域</c>
 <l>xpiont:=[]</l>
 <l>ypiont:=[]</l>
-<l>cont:=[]</l>
+<l>sign:=[]</l>
+<l>sign1:=[]</l>
+<l>sign2:=[]</l>
+<l>sign3:=[]</l>
 <l>xpiont[0]:=Rows[3]+short_row</l>
-<l>xpiont[1]:=xpiont[0]+2*short_row</l>
+<l>xpiont[1]:=xpiont[0]</l>
+<l>xpiont[2]:=xpiont[0]+2*short_row</l>
+<l>xpiont[3]:=xpiont[2]</l>
 <l>ypiont[0]:=Columns[3]+short_col</l>
 <l>ypiont[1]:=ypiont[0]+2*long_col</l>
-<c></c>
-<c>*位置一</c>
-<l>gen_rectangle1(name1,xpiont[0],ypiont[0],xpiont[0]+short_row,ypiont[0]+short_col)</l>
-<l>intensity (name1, GrayImage, Mean1, Deviation)</l>
-<c>* 1为由签名；0为没有签</c>
-<l>if (Mean1&lt;170)</l>
-<l>             cont[0]:=1</l>
-<l>else</l>
-<l>             cont[0]:=0</l>
-<l>endif</l>
-<c></c>
-<c>*位置二</c>
-<l>gen_rectangle1(name2,xpiont[0],ypiont[1],xpiont[0]+short_row,ypiont[1]+short_col)</l>
-<l>intensity (name2, GrayImage, Mean2, Deviation)</l>
-<c>* 1为由签名；0为没有签</c>
-<l>if (Mean2&lt;170)</l>
-<l>             cont[1]:=1</l>
-<l>else</l>
-<l>             cont[1]:=0</l>
-<l>endif</l>
-<c></c>
-<c>*位置三</c>
-<l>gen_rectangle1(name3,xpiont[1],ypiont[0],xpiont[1]+short_row,ypiont[0]+short_col)</l>
-<l>intensity (name3, GrayImage, Mean3, Deviation)</l>
-<c>* 1为由签名；0为没有签</c>
-<l>if (Mean3&lt;170)</l>
-<l>             cont[2]:=1</l>
-<l>else</l>
-<l>             cont[2]:=0</l>
-<l>endif</l>
-<c></c>
-<c>*位置四</c>
-<l>gen_rectangle1(name4,xpiont[1],ypiont[1],xpiont[1]+short_row,ypiont[1]+short_col)</l>
-<l>intensity (name4, GrayImage, Mean4, Deviation)</l>
-<c>* 1为由签名；0为没有签</c>
-<l>if (Mean4&lt;170)</l>
-<l>             cont[3]:=1</l>
-<l>else</l>
-<l>             cont[3]:=0</l>
-<l>endif</l>
+<l>ypiont[2]:=ypiont[0]</l>
+<l>ypiont[3]:=ypiont[1]</l>
+<c>*位置</c>
+<l>for I:=0 to 3 by 1</l>
+<c>             </c>
+<c>             *划定区域</c>
+<l>             gen_rectangle1(name,xpiont[I],ypiont[I],xpiont[I]+short_row,ypiont[I]+short_col)</l>
+<c>             *合并多个ROI</c>
+<l>             concat_obj (name,NAME,NAME)</l>
+<c>             *截取对应区域图片</c>
+<l>             reduce_domain(Image4,name, ImageReduced)</l>
+<c>             *区域图片映射为轮廓</c>
+<l>             edges_sub_pix(ImageReduced,Edges, 'canny', 1, 20, 40)</l>
+<c>             *得到轮廓长度数组</c>
+<l>             length_xld(Edges, Length)</l>
+<c>             *云团数目大于五则有签字</c>
+<l>             tuple_length(Length,Length1)</l>
+<l>             if(Length1&gt;5)</l>
+<l>                         sign1[I]:=1</l>
+<l>             else</l>
+<l>                         sign1[I]:=0</l>
+<l>             endif</l>
+<c>             *计算数组元素之和</c>
+<l>             tuple_sum(Length,Sum)</l>
+<c>             *判断总长度大于GN则有签字</c>
+<l>             if(Sum&gt;400)</l>
+<l>                      sign2[I]:=1</l>
+<l>             else</l>
+<l>                      sign2[I]:=0</l>
+<l>             endif</l>
+<c>             *获取灰度均值</c>
+<l>             intensity (name, GrayImage, Mean, Deviation)</l>
+<c>             * 1为由签名；0为没有签</c>
+<l>             if (Mean&lt;210)</l>
+<l>                        sign3[I]:=1</l>
+<l>             else</l>
+<l>                        sign3[I]:=0</l>
+<l>             endif</l>
+<l>             if(method=='all')</l>
+<l>                          sign[I]:=sign1[I]*0.95+sign2[I]*0.025+sign3[I]*0.025 </l>
+<l>             elseif(method=='cloud')</l>
+<l>                          sign[I]:=sign1[I]</l>
+<l>             elseif(method=='length')</l>
+<l>                          sign[I]:=sign2[I]</l>
+<l>             elseif(method=='gray')</l>
+<l>                          sign[I]:=sign3[I]</l>
+<l>             endif</l>
+<c>             </c>
+<c>                </c>
+<l>endfor</l>
 <l>return ()</l>
 </body>
 <docu id="image_sign">
 <parameters>
 <parameter id="Image4"/>
+<parameter id="NAME"/>
 <parameter id="ROI_0"/>
-<parameter id="cont"/>
-<parameter id="name1"/>
-<parameter id="name2"/>
-<parameter id="name3"/>
-<parameter id="name4"/>
+<parameter id="method"/>
+<parameter id="sign"/>
 </parameters>
 </docu>
 </procedure>
