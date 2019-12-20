@@ -609,7 +609,7 @@ Also, please note that for reproducibility of the output images, the random seed
 <l>             else</l>
 <l>                        sign3[I]:=0</l>
 <l>             endif</l>
-<l>             if(method=='all')</l>
+<l>             if(method==[])</l>
 <l>                          sign[I]:=sign1[I]*0.95+sign2[I]*0.025+sign3[I]*0.025 </l>
 <l>             elseif(method=='cloud')</l>
 <l>                          sign[I]:=sign1[I]</l>
