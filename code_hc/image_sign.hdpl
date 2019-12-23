@@ -540,6 +540,7 @@ Also, please note that for reproducibility of the output images, the random seed
 </io>
 <oo>
 <par name="NAME" base_type="iconic" dimension="0"/>
+<par name="EDGE" base_type="iconic" dimension="0"/>
 </oo>
 <ic>
 <par name="method" base_type="ctrl" dimension="0"/>
@@ -554,6 +555,7 @@ Also, please note that for reproducibility of the output images, the random seed
 <l>rgb1_to_gray (Image4, GrayImage)</l>
 <l>get_region_convex(ROI_0, Rows, Columns)</l>
 <l>gen_empty_obj(NAME)</l>
+<l>gen_empty_obj(EDGE)</l>
 <c>*添加位移参数和判断参数</c>
 <l>short_row:=62</l>
 <l>short_col:=310</l>
@@ -584,6 +586,7 @@ Also, please note that for reproducibility of the output images, the random seed
 <l>             reduce_domain(Image4,name, ImageReduced)</l>
 <c>             *区域图片映射为轮廓</c>
 <l>             edges_sub_pix(ImageReduced,Edges, 'canny', 1, 20, 40)</l>
+<l>              concat_obj(Edges,EDGE,EDGE)</l>
 <c>             *得到轮廓长度数组</c>
 <l>             length_xld(Edges, Length)</l>
 <c>             *云团数目大于五则有签字</c>
@@ -624,6 +627,7 @@ Also, please note that for reproducibility of the output images, the random seed
 </body>
 <docu id="image_sign">
 <parameters>
+<parameter id="EDGE"/>
 <parameter id="Image4"/>
 <parameter id="NAME"/>
 <parameter id="ROI_0"/>

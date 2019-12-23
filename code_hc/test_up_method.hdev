@@ -21,7 +21,8 @@
 <l>gen_rectangle1 (ROI_0, 3081.41, 660.589, 3167.71, 961.494)</l>
 <l>* image_sign3(Image4, ROI_0, NAME, sign)</l>
 <c></c>
-<l>image_sign(Image4, ROI_0, NAME,[], sign)</l>
+<l>image_sign(Image4, ROI_0, NAME,EDGE,[], sign)</l>
+<c></c>
 </body>
 <docu id="main">
 <parameters/>

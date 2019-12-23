@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_dl_classifier_data_set('D:/BaiduNetdiskDownload/DataSet/images','last_folder', ImageFiles, GroundTruthLabels, LabelIndices, UniqueClasses)</l>
+<l>read_dl_dataset_from_coco(ImageFiles, [], [], DLDataset)</l>
+<l>read_dl_dataset_segmentation(ImageFiles, ImageFiles, ImageFiles, LabelIndices, [], [], [], DLDataset1)</l>
+<l>read_dl_model('pretrained_dl_segmentation_compact.hdl', DLModelHandle)</l>
+<l>read_dl_samples(DLDataset1, [], DLSampleBatch)</l>
+<l>read_dl_classifier('pretrained_dl_classifier_compact.hdl', DLClassifierHandle)</l>
+<c></c>
+<c></c>
+<l>set_dl_classifier_param(DLClassifierHandle, 'classes', ['class_1','class_2','class_3'])</l>
+<l>set_dl_model_param(DLModelHandle, 'learning_rate', 0.001)</l>
+<l>set_dl_model_param_based_on_preprocessing(DLModelHandle, DLSampleBatch, LabelIndices)</l>
+<l>set_dl_model_param_max_gpu_batch_size(DLModelHandle, 100)</l>
+<c></c>
+<c></c>
+<l>split_dl_classifier_data_set(ImageFiles, ImageFiles, LabelIndices, LabelIndices, TrainingImages, TrainingLabels, ValidationImages, ValidationLabels, TestImages, TestLabels)</l>
+<c></c>
+<l>split_dl_dataset(DLSampleBatch, 60, 20, [])</l>
+<c></c>
+<c>*train_class_gmm</c>
+<c>*train_class_mlp</c>
+<l>train_dl_model(DLSampleBatch, DLModelHandle, DLSampleBatch, 0, TrainResults, TrainInfos, EvaluationInfos)</l>
+<c></c>
+<c>* Read the best classifier from the training.</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
