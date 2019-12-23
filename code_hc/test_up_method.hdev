@@ -19,9 +19,9 @@
 <c></c>
 <l>read_image (Image4, 'C:/Users/wangz/Desktop/tu/4.jpg')</l>
 <l>gen_rectangle1 (ROI_0, 3081.41, 660.589, 3167.71, 961.494)</l>
-<l>method:='cloud'</l>
 <l>* image_sign3(Image4, ROI_0, NAME, sign)</l>
-<l>image_sign (Image4, ROI_0, NAME,'cloud', sign)</l>
+<c></c>
+<l>image_sign(Image4, ROI_0, NAME,[], sign)</l>
 </body>
 <docu id="main">
 <parameters/>
