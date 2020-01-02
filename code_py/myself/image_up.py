@@ -1,13 +1,41 @@
-# import numpy as np 
-# import cv2
-# import json
-# from PIL import Image
-# import matplotlib.pyplot as plt
-# image = Image.open('C:/Users/wangz/Desktop/tu/12.jpg')
-# # image = np.array(image)
 import numpy as np
 import cv2
 import sys
+       
+src=cv2.imread("C:/Users/wangz/Desktop/tu/12.jpg",cv2.IMREAD_ANYCOLOR)
+clahe = cv2.createCLAHE(clipLimit=2.0,tileGridSize=(8,8))
+B = src[:,:,0]
+G = src[:,:,1]
+R = src[:,:,2]
+
+gray_image = cv2.cvtColor(src,cv2.COLOR_BGR2GRAY)
+
+dst = clahe.apply(gray_image)
+
+weght =dst/gray_image
+
+src_new = np.zeros((src.shape)).astype("uint8")
+src_new[:,:,0] = B*weght
+src_new[:,:,1] = G*weght
+src_new[:,:,2] = R*weght
+
+cv2.imshow('yuantu',src)
+cv2.imshow('zhifanghua',src_new)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+
+
+
+#print(gray_image,dst,new_image)
+# new_image = cv2.cvtColor(dst,cv2.COLOR_GRAY2BGR)
+# # new=gray2rgb(image,dst)
+
+
+
+
+
+
 
 
 # def compute(img, min_percentile, max_percentile):
@@ -65,45 +93,6 @@ import sys
 #    grayRgb[:, :, 1] = G
  
 #    return grayRgb
-       
-src=cv2.imread("C:/Users/wangz/Desktop/tu/12.jpg",cv2.IMREAD_ANYCOLOR)
-clahe = cv2.createCLAHE(clipLimit=2.0,tileGridSize=(8,8))
-B = src[:,:,0]
-G = src[:,:,1]
-R = src[:,:,2]
-
-gray_image = cv2.cvtColor(src,cv2.COLOR_BGR2GRAY)
-
-dst = clahe.apply(gray_image)
-
-weght =dst/gray_image
-
-src_new = np.zeros((src.shape)).astype("uint8")
-src_new[:,:,0] = B*weght
-src_new[:,:,1] = G*weght
-src_new[:,:,2] = R*weght
-cv2.imshow('yuantu',src)
-cv2.imshow('zhifanghua',src_new)
-# cv2.imshow('new',new)
-cv2.waitKey(0)
-
-cv2.destroyAllWindows()
-
-
-
-
-#print(gray_image,dst,new_image)
-# new_image = cv2.cvtColor(dst,cv2.COLOR_GRAY2BGR)
-# # new=gray2rgb(image,dst)
-
-
-
-
-
-
-
-
-
 # print(gray)
 # # gray_image = rgb2gray(image)
 # gray_image = (R*76.245+G*149.685+B*29.07)/255
@@ -130,3 +119,12 @@ cv2.destroyAllWindows()
 # cv2.imshow("result", src_new)
 
 # cv2.waitKey(0)
+
+
+# import numpy as np 
+# import cv2
+# import json
+# from PIL import Image
+# import matplotlib.pyplot as plt
+# image = Image.open('C:/Users/wangz/Desktop/tu/12.jpg')
+# # image = np.array(image)
