@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import sys
        
-src=cv2.imread("C:/Users/wangz/Desktop/tu/12.jpg",cv2.IMREAD_ANYCOLOR)
+src=cv2.imread("C:/Users/wangz/Desktop/tu/13.jpg",cv2.IMREAD_ANYCOLOR)
 clahe = cv2.createCLAHE(clipLimit=2.0,tileGridSize=(8,8))
 B = src[:,:,0]
 G = src[:,:,1]
