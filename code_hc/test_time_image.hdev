@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>FileName := 'C:/Users/wangz/Desktop/tu/halconimage/1'</l>
+<l>numdata:=1500</l>
+<l>gen_cam_par_area_scan_division (0.0121693, -2675.63, 7.40046e-006, 7.4e-006, 290.491, 258.887, 640, 480, CamParam)</l>
+<l>change_radial_distortion_cam_par ('adaptive', CamParam, 0, CamParOut)</l>
+<c></c>
+<l>open_framegrabber ('MindVision17_X64', 1, 1, 0, 0, 0, 0, 'progressive', 8, 'BGR24', -1, 'false', 'auto', 'Camera MV-GE134GC#A9FEC3EE', 0, -1, AcqHandle)</l>
+<l>grab_image_start (AcqHandle, -1)</l>
+<l>gen_empty_obj (Images)</l>
+<l>for J := 1 to numdata by 1</l>
+<l>    grab_image_async (Image, AcqHandle, -1)</l>
+<l>    get_image_size (Image, Width, Height)         </l>
+<l>    crop_part(Image, ImagePart, 0, 0, Width, 2)</l>
+<l>    concat_obj (Images, ImagePart, Images)</l>
+<l>endfor</l>
+<c></c>
+<l>get_image_size (ImagePart, Width, Height)</l>
+<c></c>
+<l>TiledWidth := Width </l>
+<l>TiledHeight := numdata * Height </l>
+<l>dev_set_window_extents (-1, -1, TiledWidth , TiledHeight)</l>
+<l>OffsetRow := Height </l>
+<l>OffsetColumn := Width </l>
+<l>offrow:=[]</l>
+<l>offcol:=[]</l>
+<l>offmat:=[]</l>
+<l>for i:= 0 to numdata-1 by 1</l>
+<l>             offrow[i]:= i*OffsetRow</l>
+<l>             offcol[i]:=0</l>
+<l>             offmat[i]:=-1          </l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<l>tile_images_offset(Images,TiledImage,offrow,offcol, offmat, offmat, offmat, offmat, TiledWidth, TiledHeight)</l>
+<l>* dev_clear_window ()</l>
+<l>* dev_display (TiledImage)</l>
+<l>write_image(TiledImage, 'jpg', 0,  FileName)</l>
+<c></c>
+<l>* dev_close_window ()</l>
+<l>close_framegrabber (AcqHandle)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

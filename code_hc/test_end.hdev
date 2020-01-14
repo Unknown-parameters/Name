@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.1">
+<procedure name="main">
+<interface/>
+<body>
+<l>FileName := 'C:/Users/wangz/Desktop/tu/halconimage/1'</l>
+<l>read_image(Images, 'C:/Users/wangz/Desktop/tu/halconimage/1.tif')</l>
+<c></c>
+<l>get_image_size(Images, Width, Height)</l>
+<l>tuple_length(Height,numdata)</l>
+<c></c>
+<l>TiledWidth := Width[1] </l>
+<l>TiledHeight := numdata * Height[1] </l>
+<l>dev_set_window_extents (-1, -1, TiledWidth , TiledHeight)</l>
+<l>OffsetRow := Height[1] </l>
+<l>OffsetColumn := Width[1] </l>
+<l>offrow:=[]</l>
+<l>offcol:=[]</l>
+<l>offmat:=[]</l>
+<l>for i:= 0 to numdata-1 by 1</l>
+<l>             offrow[i]:= i*OffsetRow</l>
+<l>             offcol[i]:=0</l>
+<l>             offmat[i]:=-1          </l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<l>tile_images_offset(Images,TiledImage,offrow,offcol, offmat, offmat, offmat, offmat, TiledWidth, TiledHeight)</l>
+<l>* dev_clear_window ()</l>
+<l>* dev_display (TiledImage)</l>
+<l>write_image(TiledImage, 'jpg', 0,  FileName)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
