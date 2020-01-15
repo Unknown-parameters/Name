@@ -62,7 +62,7 @@ void action()
     GetImageSize(ho_Image, &hv_Width, &hv_Height);
     CropPart(ho_Image, &ho_ImagePart, 0, 0, hv_Width, 2);
     ConcatObj(ho_Images, ho_ImagePart, &ho_Images);
-    WriteImage(ho_Images, "hobj", 0, hv_FileName);
+    WriteImage(ho_Images, "bigtiff", 0, hv_FileName);
   }
 
   CloseFramegrabber(hv_AcqHandle);
