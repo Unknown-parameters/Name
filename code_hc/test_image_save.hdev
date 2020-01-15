@@ -7,13 +7,14 @@
 <l as_id="image_acquisition" as_name="Image Acquisition 01" as_grp="[1,2,1]" as_ord="1">open_framegrabber ('MindVision17_X64', 1, 1, 0, 0, 0, 0, 'progressive', 8, 'BGR24', -1, 'false', 'auto', 'Camera MV-GE134GC#A9FEC3EE', 0, -1, AcqHandle)</l>
 <l as_id="image_acquisition" as_name="Image Acquisition 01" as_grp="[2,1]" as_ord="1">grab_image_start (AcqHandle, -1)</l>
 <l>FileName := 'C:/Users/wangz/Desktop/tu/halconimage/1'</l>
-<l>gen_empty_obj (Images)</l>
+<l>gen_empty_obj(Images)</l>
+<c></c>
 <l>while(true)</l>
 <l>            grab_image_async (Image, AcqHandle, -1)</l>
 <l>            get_image_size (Image, Width, Height)         </l>
 <l>            crop_part(Image, ImagePart, 0, 0, Width, 2)</l>
-<l>            concat_obj (Images, Image, Images)</l>
-<l>            write_image(Images, 'tiff', 0, FileName)</l>
+<l>            concat_obj (Images, ImagePart, Images)</l>
+<l>            write_image(Images, 'hobj', 0, FileName)</l>
 <l>endwhile</l>
 <c></c>
 <l>close_framegrabber (AcqHandle)</l>
