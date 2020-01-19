@@ -14,7 +14,8 @@
 <l>dev_close_window ()</l>
 <l>dev_open_window (0, 0, 640, 480, 'white', WindowHandle)</l>
 <l>dev_set_color ('green')</l>
-<l>numdata:=6</l>
+<l>numdata:=40</l>
+<c></c>
 <l>set_display_font (WindowHandle, 14, 'mono', 'true', 'false')</l>
 <c>* Read in the images and show them one-by-one.  Please not the fold-like</c>
 <c>* degradations running across the PCB.</c>
@@ -151,8 +152,11 @@
 <l>endfor</l>
 <l>disp_message (WindowHandle, 'Click \'Run\'\nto continue', 'window', 2980 / 4 - 50, 12, 'black', 'true')</l>
 <l>stop ()</l>
+<c></c>
+<c></c>
+<c></c>
 <c>* Finally, we can generate the mosaic image from the projective transformations.</c>
-<l>gen_projective_mosaic (Images, MosaicImage, 2, From, To, ProjMatrices, 'default', 'false', MosaicMatrices2D)</l>
+<l>gen_projective_mosaic (Images, MosaicImage, 3, From, To, ProjMatrices, 'default', 'false', MosaicMatrices2D)</l>
 <l>get_image_size (MosaicImage, Width, Height)</l>
 <l>dev_set_window_extents (-1, -1, Width / 3, Height / 3)</l>
 <l>dev_clear_window ()</l>
@@ -160,6 +164,9 @@
 <l>disp_message (WindowHandle, 'Projective mosaic', 'window', 12, 12, 'black', 'true')</l>
 <l>disp_message (WindowHandle, 'Click \'Run\'\nto continue', 'window', Height / 3 - 50, 12, 'black', 'true')</l>
 <l>stop ()</l>
+<c></c>
+<c></c>
+<c></c>
 <c>* To show more clearly that the folds visible in the image do not result from the</c>
 <c>* mosaicking, we display the seams between the images in the mosaic image.</c>
 <c>* This can be done most easily by creating an image that contains the border</c>
@@ -191,13 +198,14 @@
 <c>* plane.  In this example, we know that the mapping between the images must</c>
 <c>* be a rigid transformation.  If we want to force the transformation to be rigid</c>
 <c>* we can simply use bundle_adjust_mosaic.</c>
-<l>bundle_adjust_mosaic (6, 1, From, To, ProjMatrices, Rows1, Cols1, Rows2, Cols2, NumMatches, 'rigid', MosaicMatrices2D, Rows, Cols, Error)</l>
+<c>*need change parameter</c>
+<l>* bundle_adjust_mosaic (numdata, 1, From, To, ProjMatrices, Rows1, Cols1, Rows2, Cols2, NumMatches, 'rigid', MosaicMatrices2D, Rows, Cols, Error)</l>
 <c>* Now, we can generate the mosaic image from the rigid transformations.</c>
-<l>gen_bundle_adjusted_mosaic (Images, MosaicImageRigid, MosaicMatrices2D, 'default', 'false', TransMatrix2D)</l>
-<l>get_image_size (MosaicImageRigid, Width, Height)</l>
-<l>dev_set_window_extents (-1, -1, Width / 3, Height / 3)</l>
-<l>dev_clear_window ()</l>
-<l>dev_display (MosaicImageRigid)</l>
+<l>* gen_bundle_adjusted_mosaic (Images, MosaicImageRigid, MosaicMatrices2D, 'default', 'false', TransMatrix2D)</l>
+<l>* get_image_size (MosaicImageRigid, Width, Height)</l>
+<l>* dev_set_window_extents (-1, -1, Width / 3, Height / 3)</l>
+<l>* dev_clear_window ()</l>
+<l>* dev_display (MosaicImageRigid)</l>
 <l>disp_message (WindowHandle, 'Rigid mosaic', 'window', 12, 12, 'black', 'true')</l>
 <l>close_framegrabber (AcqHandle)</l>
 <c></c>
