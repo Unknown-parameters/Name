@@ -11,10 +11,12 @@
 <c></c>
 <l>while(true)</l>
 <l>            grab_image_async (Image, AcqHandle, -1)</l>
-<l>            get_image_size (Image, Width, Height)         </l>
+<l>            get_image_size (Image, Width, Height)  </l>
+<c>          </c>
 <l>            crop_part(Image, ImagePart, 0, 0, Width, 2)</l>
 <l>            concat_obj (Images, ImagePart, Images)</l>
-<l>            write_image(Images, 'hobj', 0, FileName)</l>
+<c>      </c>
+<l>            write_image(Images, 'bigtiff', 0, FileName)</l>
 <l>endwhile</l>
 <c></c>
 <l>close_framegrabber (AcqHandle)</l>

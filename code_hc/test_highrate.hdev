@@ -16,6 +16,7 @@
 <c>* mapped to which image (1, 2, or 3; see below and</c>
 <c>* Solution Guide III-C 3D Vision, 10.2 Definition of Overlapping Image Pairs)</c>
 <l>PairConfiguration := 4</l>
+<l>numdata:=100</l>
 <c>* Define whether a rigid transformation shall be used instead of</c>
 <c>* the projective transformation (true or false).</c>
 <l>UseRigidTransformation := true</l>
@@ -43,11 +44,11 @@
 <c></c>
 <c></c>
 <l>gen_empty_obj (Images)</l>
-<l>for J := 1 to 300 by 1</l>
+<l>for J := 1 to numdata by 1</l>
 <l>    grab_image_async (Image, AcqHandle, -1)</l>
-<l>    get_image_size (Image, Width, Height)         </l>
-<l>    crop_part(Image, ImagePart, 0, 0, Width, 2)</l>
-<l>    concat_obj (Images, ImagePart, Images)</l>
+<l>*     get_image_size (Image, Width, Height)         </l>
+<l>*     crop_part(Image, ImagePart, 0, 0, Width, 2)</l>
+<l>    concat_obj (Images, Image, Images)</l>
 <l>*     concat_obj (Images, Image, Images)</l>
 <l>*     dev_display (Image)</l>
 <l>*     disp_message (WindowHandle1, 'Image ' + J$'d', 'window', 12, 12, 'black', 'true')</l>
@@ -61,7 +62,7 @@
 <c>* transformation between the images, we will show all images in a large</c>
 <c>* tiled image with some space between the images so that the extents</c>
 <c>* of the images are easily visible.</c>
-<l> get_image_size (ImagePart, Width, Height)</l>
+<l> get_image_size (Images, Width, Height)</l>
 <l>TileSpacingRow := 0</l>
 <l>TileSpacingColumn := 0</l>
 <l>* TiledWidth := 5 * Width + 4 * TileSpacingColumn</l>
@@ -77,7 +78,7 @@
 <l>offrow:=[]</l>
 <l>offcol:=[]</l>
 <l>offmat:=[]</l>
-<l>for i:= 0 to 299 by 1</l>
+<l>for i:= 0 to numdata-1 by 1</l>
 <l>             offrow[i]:= i*OffsetRow</l>
 <l>             offcol[i]:=0</l>
 <l>             offmat[i]:=-1</l>
