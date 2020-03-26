@@ -4,8 +4,12 @@
 using namespace std;
 using namespace cv;
 
+//动态范围压缩与局部对比度增强的并行计算
 
 
+
+
+//动态范围压缩与局部对比度增强的非并行算法
 bool adaptblack(Mat &scr)
 {
 	//得到亮度分量
@@ -14,12 +18,12 @@ bool adaptblack(Mat &scr)
 	Mat light[3];//原始亮度，增强的亮度，增强的对比度亮度；
 	Mat dst;
 	//int tmp;
-	float proportion[3] = { 0.3,0.3,0.3};//卷积权重比值影像较大
+	float proportion[3] = { 0.33333,0.33333,0.33333};//卷积权重比值影像较大
 	float Z = 0, P = 0;
 	//int RadiusS = 5, RadiusM = 20, RadiusL = 120;
 	float Sum = 0, Mean = 0, StdDev = 0;
 	vector<int> Histgram(256);
-	cvtColor(scr, ycc, COLOR_RGB2YCrCb);
+	cvtColor(scr, ycc, COLOR_RGB2HSV);//更改了通道口
 	split(ycc, matArray);
 	//light[0] = matArray[0];
 	int Width = scr.cols;
@@ -30,8 +34,8 @@ bool adaptblack(Mat &scr)
 		for (int j = 0; j < scr.cols; j++)
 		{
 			
-			Sum = Sum + matArray[0].at< uchar >(i, j);
-			Histgram[matArray[0].at< uchar >(i, j)]++;
+			Sum = Sum + matArray[2].at< uchar >(i, j);
+			Histgram[matArray[2].at< uchar >(i, j)]++;
 			}
 
 	}
@@ -70,57 +74,49 @@ bool adaptblack(Mat &scr)
 		//局部对比度增强
 			//依据领域信息，以高斯模糊的多级的权重实现
 		int valu[3];
-		GaussianBlur(matArray[0], light[0], cv::Size(5, 5), 0, 0);
-		GaussianBlur(matArray[0], light[1], cv::Size(21, 21), 0, 0);
-		GaussianBlur(matArray[0], light[2], cv::Size(121, 121), 0, 0);
+		GaussianBlur(matArray[2], light[0], cv::Size(5, 5), 0, 0);
+		GaussianBlur(matArray[2], light[1], cv::Size(21, 21), 0, 0);
+		GaussianBlur(matArray[2], light[2], cv::Size(121, 121), 0, 0);
 		for (int i = 0; i < scr.rows; i++)
 		{
 			for (int j = 0; j < scr.cols; j++)
 			{
-				float I = matArray[0].at< uchar >(i, j) /255.0f;                            //    归一化                                  //整除问题
+				float I = matArray[2].at< uchar >(i, j) /255.0f;                            //    归一化                                  //整除问题
 				I = (powf(I, 0.75f * Z + 0.25f) + (1 - I) * 0.4f * (1 - Z) + powf(I, 2 - Z)) * 0.5f; //    线性亮度增强 //公式3
 				for (int k = 0; k < 3; k++)
 				{
-					valu[k] = proportion[k]*255 * powf(I, powf((light[k].at< uchar >(i, j) + 1.0f) / (matArray[0].at< uchar >(i, j) + 1.0f), P)) + 0.5f;
+					valu[k] = proportion[k]*255 * powf(I, powf((light[k].at< uchar >(i, j) + 1.0f) / (matArray[2].at< uchar >(i, j) + 1.0f), P)) + 0.5f;
 
 				}
 				I = valu[0] + valu[1] + valu[2];
 				
-				if (I / matArray[0].at< uchar >(i, j) < 4.0)
+				if (I / matArray[2].at< uchar >(i, j) < 4.0)
 				{
-					matArray[0].at< uchar >(i, j) = I;
+					matArray[2].at< uchar >(i, j) = I;
 				}
 				else
 				{
-					matArray[0].at< uchar >(i, j) = 4 * matArray[0].at< uchar >(i, j);
-				}
-			
+					matArray[2].at< uchar >(i, j) = 4 * matArray[2].at< uchar >(i, j);
+				}			
 					
 			}
 
-		}
-
-		
-
-
-
-		
-				
+		}		
 		merge(matArray, 3, ycc);
-		cvtColor(ycc, scr, COLOR_YCrCb2RGB);
+		cvtColor(ycc, scr, COLOR_HSV2RGB);
 
 return true;
 }
-bool adaptYUV(Mat &scr)
+bool adaptHSV(Mat &scr)
 {
 	Mat ycc;
 	Mat matArray[3];
 	Mat dst;
-	cvtColor(scr,ycc, COLOR_RGB2YCrCb);
+	cvtColor(scr,ycc, COLOR_RGB2HSV);
 	split(ycc, matArray);
-	equalizeHist(matArray[0], matArray[0]);
+	equalizeHist(matArray[2], matArray[0]);
 	merge(matArray, 3, ycc);
-	cvtColor(ycc, scr, COLOR_YCrCb2RGB);
+	cvtColor(ycc, scr, COLOR_HSV2RGB);
 
 
 	return true;
@@ -329,13 +325,13 @@ bool adaptContrastEnhancement(Mat &scr, Mat &dst, int winSize, int maxCg)
 int main()
 {
 	
-	Mat scr = imread("d:/test5.jpg");
-	Mat scrup1 = scr.clone();
+	Mat scr = imread("d:/test9.jpg");
+	//Mat scrup1 = scr.clone();
 	Mat scrup2 = scr.clone();
-	adaptlightadd(scrup1);
+	//adaptlightadd(scrup1);
 	//adaptlightmult(scrup2);
-	equalizeHist_Color(scr);
-	//adaptyuv(scrup);
+	//equalizeHist_Color(scr);
+	//adaptHSV(scrup1);
 	adaptblack(scrup2);
 	//const int WINSIZE = 15;      //WINSIZE表示求均值与方差的窗口大小，应该是单数
 	//const int MAXCG = 10;        //设定最大的增强比例
@@ -345,8 +341,9 @@ int main()
 	//adaptContrastEnhancement(scrup1, dst, WINSIZE,MAXCG);
 
 	imshow("yuantu", scr);
-	imshow("add", scrup1);
+	//imshow("HSV", scrup1);
 	imshow("black", scrup2);
+	imwrite("D:/testlight.jpg", scrup2);
 	//imshow("3", dst);
 	waitKey();
 
