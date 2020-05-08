@@ -5,7 +5,7 @@ import matplotlib.patches as patches
 import math
 
 
-#######################精确数据################
+
 datafile = 'D:/data.txt'
 data = np.fromfile(datafile, sep=' ')
 
@@ -54,7 +54,7 @@ print('========================================================================'
 print(datachange[0][0][0][0])
 
 
-##########################################prepare_data#################
+
 
 #遍历样本收集,由标准分割11---->601，遍历采样间隔
 datalen = DATA.reshape(660*15)
@@ -69,8 +69,15 @@ datatest = datatest.reshape(601,60,5,3)
 print(datatest.shape)
 print(datatest[600][0])
 
-#创建标签
-label =[]
-for i range (0,601):
+#制作标签
+
+label = []
+for i in range(601):
     label.append(0)
-    
+
+
+print(label)
+
+
+
+
