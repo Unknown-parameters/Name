@@ -4,6 +4,10 @@ import matplotlib.patches as patches
 #import accel_add as ac 
 import math
 
+from sklearn import svm
+from sklearn.svm import SVC
+from sklearn import model_selection
+
 
 
 datafile = 'D:/data.txt'
@@ -19,17 +23,10 @@ feature_names = [ 'roll','Pitch','Yaw',\
 
 feature_num = len(feature_names)
 
-    # 将原始数据进行Reshape，变成[N, 14]这样的形状
 
+# 将原始数据进行Reshape，变成[N, 14]这样的形状
 data = data.reshape([data.shape[0] // feature_num, feature_num])
-# print(data.shape)
-# print(data[:,0])#index 
-# print(data[0][0])
-# data0 = np.array(data[:,0])
-# print(data0.shape)
-# print(data0)
 
-#huantu
 
 
 #转换单位 lsb->
@@ -43,15 +40,15 @@ DATA =  data*CHANGE
 #标准样本分割==========
 #样本数据分割
 datachange = DATA.reshape(11,60,5,3)
-print(datachange)
-print('========================================================================')
-print(datachange[0])
-print('========================================================================')
-print(datachange[0][0])
-print('========================================================================')
-print(datachange[0][0][0])
-print('========================================================================')
-print(datachange[0][0][0][0])
+# print(datachange)
+# print('========================================================================')
+# print(datachange[0])
+# print('========================================================================')
+# print(datachange[0][0])
+# print('========================================================================')
+# print(datachange[0][0][0])
+# print('========================================================================')
+# print(datachange[0][0][0][0])
 
 
 

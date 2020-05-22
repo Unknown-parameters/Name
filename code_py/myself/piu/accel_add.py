@@ -7,7 +7,57 @@ import matplotlib.pyplot as plt
 #输入加速度单位m/s2;
 Q0 = np.array([1.0,0.0,0.0,0.0])
 g0 = np.array([0.0,0.0,9.8])
+#转换单位 lsb->
+ACCEL = 0.000598144531
+GURO = 0.0304878049
+MAGN = 0.15
 
+#=======数据读入
+
+
+#基础物理意义的数据读入
+def loaddata(path):
+    data = np.fromfile(path, sep=' ')
+    #数据变形为<len/15,15>
+    data = data.reshape([data.shape[0] //15,15])
+    #转换单位 lsb->
+    global ACCEL 
+    global GURO 
+    global MAGN 
+    CHANGE = np.array([1,1,1,ACCEL,ACCEL,ACCEL,GURO,GURO,GURO,MAGN,MAGN,MAGN,1,1,1])
+    #单位转换后的数值，<°，°，°，m/s2,m/s2,m/s2,dps,dps,dps,miut,miut,miut,hpa,m,°C>
+    DATA =  data*CHANGE 
+    return DATA
+
+
+
+
+#svm数据的基础读入sklearn
+def svmdata(path):
+
+    #数据的读入
+    
+    #数据的维度变化
+
+    #数据归一化
+
+
+
+
+# #实时数据的检测切分
+# def cutdata(timedata):
+#     #基本的载入
+
+#     #数据归一化
+
+#     #切分
+#     #样本数据分割
+#     datachange = DATA.reshape(11,60,5,3)
+
+
+
+
+#===============数据处理
 def updata(wx,wy,wz,ax,ay,az):
     #跟新循环
     global Q0
@@ -95,7 +145,7 @@ def show_3d(acce):
     plt.show()
 
 
-
+#画3d的轨迹图
 def show_3d1(acce):
     #定义坐标轴
     fig = plt.figure()
