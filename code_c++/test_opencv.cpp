@@ -270,8 +270,9 @@ IplImage* LightAndContrast_change2(IplImage* pImgSrc)
 	//gamma1 参数
 	float gamma = 0.9;
 	//增强范围
-	const int LowLevel = 10, HighLevel = 50;
-
+	const int LowLevel = 5, HighLevel = 50;
+	//
+	const float MinCDF = 0.1f;
 
 
 	IplImage *dst = cvCloneImage(pImgSrc);
@@ -287,7 +288,7 @@ IplImage* LightAndContrast_change2(IplImage* pImgSrc)
 	//int nStep = dst->widthStep;
 	//int RadiusS = 5, RadiusM = 20, RadiusL = 120;
 	
-	const float MinCDF = 0.1f;
+	
 	float invlin;
 	//float proportion = 0.33333333;
 	float I;
@@ -482,6 +483,20 @@ void SHARPENING(Mat IMG)
 }
 
 
+
+//更改通道的直方图均衡
+IplImage* changechannelslight(IplImage* dst)
+{
+	cvCvtColor(dst, dst, COLOR_RGB2HSV);
+	IplImage *V = cvCreateImage(cvSize(dst->width, dst->height), dst->depth, 1);
+	cvSplit(dst, 0, 0, V, 0);
+	cvEqualizeHist(V, V);
+	cvMerge(0, 0, V, 0, dst);//通道合并
+	cvCvtColor(dst, dst, COLOR_HSV2RGB);//回归原本的色彩通道
+	return dst;
+
+}
+
 int main()
 {
 
@@ -489,7 +504,7 @@ int main()
 	clock_t start, finish;
 	double  duration;
 	
-	IplImage *src =cvLoadImage("d:/mix/test8.jpg");
+	IplImage *src =cvLoadImage("d:/mix/test.jpg");
 
 
 
@@ -502,7 +517,10 @@ int main()
 
 	start = clock();
 
-	IplImage *dst = LightAndContrast_change2(src);
+	//IplImage *dst = LightAndContrast_change2(src);
+
+	IplImage *dst = changechannelslight(src);
+
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	printf("%f seconds\n", duration);
@@ -510,7 +528,7 @@ int main()
 	cvShowImage("zero", dst);
 
 	Mat img = cvarrToMat(dst);
-	imwrite("d:/mix/change.png", img);
+	imwrite("d:/mix/change.jpg", img);
 
 	//cvSaveImage("d:/mix/chang1.jpg", dst);
 	//cvWrite( "d:/mix/chang.jpg");
